@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Patient</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #current-date-time {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        footer {
+            background-color: #324a5f;
+            color: white;
+            padding: 10px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body onload="showDateTime()" style="background: linear-gradient(120deg, #6dbad8,#88c0ca,#ffffff,#ffffff,#88c0ca,#6dbad8); color: #393838;">
+
+    <div id="current-date-time"></div>
+
+    <!-- Navigation Bar -->
+    <nav style="background-color: #324a5f; color: white; padding: 10px;">
+        <a href="/dashboard" style="color: white; text-decoration: none; margin-right: 15px;">Dashboard</a>
+        <a href="/schedule" style="color: white; text-decoration: none; margin-right: 15px;">Schedule</a>
+        <a href="/icd_converter" style="color: white; text-decoration: none; margin-right: 15px;">ICD Search</a>
+        <a href="/profile" style="color: white; text-decoration: none; margin-right: 15px;">Profile</a>
+        <a href="/logout" style="color: white; text-decoration: none; margin-right: 15px;">Logout</a>
+
+    </nav>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Edit Patient</h1>
+        <form action="{{ url_for('main.edit_patient', patient_id=patient.id) }}" method="post" enctype="multipart/form-data" class="p-4 shadow card">
+            <!-- First Name -->
+            <div class="mb-3">
+                <label for="first_name" class="form-label">First Name:</label>
+                <input type="text" name="first_name" class="form-control" value="{{ patient.first_name }}" required>
+            </div>
+
+            <!-- Last Name -->
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name:</label>
+                <input type="text" name="last_name" class="form-control" value="{{ patient.last_name }}" required>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="mb-3">
+                <label for="dob" class="form-label">Date of Birth:</label>
+                <input type="date" name="dob" class="form-control" value="{{ patient.dob }}" required>
+            </div>
+
+            <!-- Nationality -->
+            <div class="mb-3">
+                <label for="nationality" class="form-label">Nationality:</label>
+                <input type="text" name="nationality" class="form-control" value="{{ patient.nationality }}" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender:</label>
+                <select name="gender" class="form-select" required>
+                    <option value="Male" {% if patient.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if patient.gender == "Female" %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+
+            <!-- Medical History -->
+            <div class="mb-3">
+                <label for="medical_history" class="form-label">Medical History:</label>
+                <textarea name="medical_history" class="form-control" rows="3" required>{{ patient.medical_history }}</textarea>
+            </div>
+
+            <!-- ICD Search and Recommendations -->
+            <div class="mb-3">
+                <label for="icd_search" class="form-label">Search ICD:</label>
+                <input type="text" id="icd_search" class="form-control" placeholder="Enter ICD term">
+                <div id="icd_suggestions" class="mt-3">
+                    <!-- Display previously selected ICD codes -->
+                    {% for code in previous_icds.split(',') if code %}
+                        <div class="form-check">
+                            <input type="checkbox" name="selected_icds" value="{{ code }}" id="icd_{{ code }}" class="form-check-input" checked>
+                            <label for="icd_{{ code }}" class="form-check-label">{{ code }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Hidden input to track previous ICD codes -->
+            <input type="hidden" name="previous_icds" id="previous_icds" value="{{ previous_icds }}">
+
+
+            <!-- OPS Title -->
+            <div class="mb-3">
+                <label for="ops_title" class="form-label">Procedures:</label>
+                <textarea name="ops_title" class="form-control" rows="2">{{ patient.ops_title }}</textarea>
+            </div>
+
+            <!-- Symptoms -->
+            <div class="mb-3">
+                <label for="symptoms" class="form-label">Symptoms:</label>
+                <textarea name="symptoms" class="form-control" rows="3" required>{{ patient.symptoms }}</textarea>
+            </div>
+
+            <!-- Signs -->
+            <div class="mb-3">
+                <label for="signs" class="form-label">Signs:</label>
+                <textarea name="signs" class="form-control" rows="3" required>{{ patient.signs }}</textarea>
+            </div>
+
+            <!-- Days of Hospitalization -->
+            <div class="mb-3">
+                <label for="days_of_hospitalization" class="form-label">Days of Hospitalization:</label>
+                <input type="number" name="days_of_hospitalization" class="form-control" value="{{ patient.days_of_hospitalization }}" required>
+            </div>
+
+            <!-- Radiology Image -->
+            <div class="mb-3">
+                <label for="radiology_image" class="form-label">Radiology Image:</label>
+                {% if patient.radiology_image %}
+                    <p>Current Image:</p>
+                    <img src="{{ url_for('static', filename=patient.radiology_image) }}" alt="Radiology Image" class="img-fluid mb-3">
+                {% endif %}
+                <input type="file" name="radiology_image" class="form-control">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('main.view_patient', patient_id=patient.id) }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Patient</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Show current date and time
+        function showDateTime() {
+            var currentDate = new Date();
+            var dateTimeString = currentDate.toLocaleString(); 
+            document.getElementById('current-date-time').innerText = "Current Date and Time: " + dateTimeString;
+        }
+        document.getElementById('icd_search').addEventListener('input', function () {
+            const searchTerm = this.value.trim();
+    
+            // Clear previous suggestions if the input is empty
+            if (!searchTerm) {
+                document.getElementById('icd_suggestions').innerHTML = '';
+                return;
+            }
+    
+            // Fetch ICD suggestions dynamically
+            fetch(`/get_icd_suggestions?search_term=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestionsDiv = document.getElementById('icd_suggestions');
+    
+                    // Preserve existing selected ICDs
+                    const existingSelections = Array.from(
+                        document.querySelectorAll('input[name="selected_icds"]:checked')
+                    ).map(input => input.value);
+    
+                    suggestionsDiv.innerHTML = ''; // Clear previous suggestions
+    
+                    if (data.length > 0) {
+                        data.forEach(icd => {
+                            const isChecked = existingSelections.includes(icd.code) ? 'checked' : '';
+                            const checkboxInput = `
+                                <div class="form-check">
+                                    <input type="checkbox" name="selected_icds" value="${icd.code}" id="icd_${icd.code}" class="form-check-input" ${isChecked}>
+                                    <label for="icd_${icd.code}" class="form-check-label">${icd.code} - ${icd.description}</label>
+                                </div>
+                            `;
+                            suggestionsDiv.insertAdjacentHTML('beforeend', checkboxInput);
+                        });
+                    } else {
+                        suggestionsDiv.innerHTML = '<p>No suggestions found.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching ICD suggestions:', error);
+                });
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <p>Created by: Khadija, Leen, Mona, Angelina | Health Informatics Students at Technische Hochschule Deggendorf</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function showDateTime() {
+            const currentDate = new Date();
+            const dateTimeString = currentDate.toLocaleString();
+            document.getElementById('current-date-time').innerText = "Current Date and Time: " + dateTimeString;
+        }
+    </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - EHR System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #current-date-time {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000; /* Ensure it's on top */
+        }
+        footer {
+            background-color: #324a5f; /* Dark Teal/Purple */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<script src="script.js"></script>
+<body onload="showDateTime()" style="background: linear-gradient(120deg, #6dbad8,#88c0ca,#ffffff,#ffffff,#88c0ca,#6dbad8); color: #393838;">
+
+    <div id="current-date-time"></div>
+
+    <!-- Navigation Bar -->
+    <nav style="background-color: #324a5f; color: rgb(254, 254, 254); padding: 10px;">
+        <a href="/dashboard" style="color: white; text-decoration: none; margin-right: 15px;">Dashboard</a>
+        <a href="/schedule" style="color: white; text-decoration: none; margin-right: 15px;">Schedule</a>
+        <a href="/icd_converter" style="color: white; text-decoration: none; margin-right: 15px;">ICD Search</a>
+        <a href="/profile" style="color: white; text-decoration: none; margin-right: 15px;">Profile</a>
+        <a href="/logout" style="color: white; text-decoration: none; margin-right: 15px;">Logout</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <h1 class="text-center">Doctor Profile</h1>
+        <div class="card shadow p-4">
+            <div class="mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="first_name" value="{{ doctor.first_name }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" value="{{ doctor.last_name }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" value="{{ doctor.email }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="department" class="form-label">Department</label>
+                <input type="text" class="form-control" id="department" value="{{ doctor.department }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <input type="text" class="form-control" id="status" value="{{ doctor.status }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="hospital_name" class="form-label">Hospital Name</label>
+                <input type="text" class="form-control" id="hospital_name" value="{{ doctor.hospital_name }}" readonly>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/edit_profile" class="btn btn-primary">Edit Profile</a>
+                <form action="{{ url_for('main.delete_doctor', doctor_id=doctor.id) }}" method="POST" style="display: inline-block; margin-left: 10px;" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                    <button type="submit" class="btn btn-danger">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Created By Section at the Bottom -->
+    <footer class="text-center">
+        <p>Created by: Khadija, Leen, Mona, Angelina | Health Informatics Students at Technische Hochschule Deggendorf</p>
+    </footer>
+
+    <script>
+        // Show current date and time
+        function showDateTime() {
+            const currentDate = new Date();
+            const dateTimeString = currentDate.toLocaleString(); 
+            document.getElementById('current-date-time').innerText = "Current Date and Time: " + dateTimeString;
+        }
+    </script>
+
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

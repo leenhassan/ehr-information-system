@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Schedule</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #current-date-time {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        footer {
+        background-color: #324a5f; /* Dark Teal/Purple */
+        color: white;
+        text-align: center;
+        padding: 10px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #ddd;
+            margin: 20px auto;
+            width: 80%;
+            border-radius: 8px;
+        }
+
+        .day-name {
+            background-color: #324a5f;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .calendar .day {
+            background-color: #f5f5f5;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            position: relative;
+        }
+
+        .calendar .day-number {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .calendar .appointment-container {
+            font-size: 12px;
+            color: #324a5f;
+            cursor: pointer;
+        }
+
+        .calendar .day.empty {
+            background-color: #e0e0e0;
+        }
+
+        .appointment {
+            background-color: #d9edf7;
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .appointment:hover {
+            background-color: #c4e3f3;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px auto;
+            width: 80%;
+        }
+
+        .calendar-controls button {
+            background-color: #324a5f;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .calendar-controls button:hover {
+            background-color: #563d7c;
+        }
+    </style>
+</head>
+<body onload="showDateTime()" style="background: linear-gradient(120deg, #6dbad8, #88c0ca, #ffffff, #ffffff,#88c0ca,#6dbad8); color: #393838;">
+
+    <div id="current-date-time"></div>
+
+    <!-- Navigation Bar -->
+    <nav style="background-color: #324a5f; color: white; padding: 10px;">
+        <a href="/dashboard" style="color: white; text-decoration: none; margin-right: 15px;">Dashboard</a>
+        <a href="/schedule" style="color: white; text-decoration: none; margin-right: 15px;">Schedule</a>
+        <a href="/icd_converter" style="color: white; text-decoration: none; margin-right: 15px;">ICD Search</a>
+        <a href="/profile" style="color: white; text-decoration: none; margin-right: 15px;">Profile</a>
+        <a href="/logout" style="color: white; text-decoration: none; margin-right: 15px;">Logout</a>
+
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <h1 class="text-center">My Schedule</h1>
+        <p class="text-center">View and manage your appointments here.</p>
+
+        <!-- Calendar Controls -->
+        <div class="calendar-controls text-center">
+            <button id="prev-month" class="btn btn-secondary">&lt; Previous</button>
+            <span id="current-month" class="fw-bold"></span>
+            <button id="next-month" class="btn btn-secondary">Next &gt;</button>
+        </div>
+
+        <!-- Calendar -->
+        <div id="calendar" class="calendar">
+            <div class="day-name">Monday</div>
+            <div class="day-name">Tuesday</div>
+            <div class="day-name">Wednesday</div>
+            <div class="day-name">Thursday</div>
+            <div class="day-name">Friday</div>
+            <div class="day-name">Saturday</div>
+            <div class="day-name">Sunday</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="te;xt-center">
+        <p>Created by: Khadija, Leen, Mona, Angelina | Health Informatics Students at Technische Hochschule Deggendorf</p>
+    </footer>
+
+    <script>
+        function showDateTime() {
+            const currentDate = new Date();
+            const dateTimeString = currentDate.toLocaleString();
+            document.getElementById('current-date-time').innerText = "Current Date and Time: " + dateTimeString;
+        }
+
+        const calendar = document.getElementById('calendar');
+        const currentMonth = document.getElementById('current-month');
+        const prevMonth = document.getElementById('prev-month');
+        const nextMonth = document.getElementById('next-month');
+
+        const today = new Date();
+        let year = today.getFullYear();
+        let month = today.getMonth();
+
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        async function fetchAppointments(year, month) {
+            const response = await fetch(`/appointments?year=${year}&month=${month + 1}`);
+            return response.json();
+        }
+
+        async function renderCalendar(year, month) {
+            calendar.innerHTML = `
+                <div class="day-name">Monday</div>
+                <div class="day-name">Tuesday</div>
+                <div class="day-name">Wednesday</div>
+                <div class="day-name">Thursday</div>
+                <div class="day-name">Friday</div>
+                <div class="day-name">Saturday</div>
+                <div class="day-name">Sunday</div>
+            `;
+            currentMonth.textContent = `${monthNames[month]} ${year}`;
+            const appointments = await fetchAppointments(year, month);
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+
+            for (let i = 0; i < (firstDay || 7) - 1; i++) {
+                calendar.insertAdjacentHTML('beforeend', '<div class="day empty"></div>');
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day';
+                dayCell.innerHTML = `<div class="day-number">${day}</div><div class="appointment-container"></div>`;
+
+                const appointmentsForDay = appointments.filter(a => a.day === day);
+                const appointmentContainer = dayCell.querySelector('.appointment-container');
+
+                appointmentsForDay.forEach(a => {
+                    const appointmentDiv = document.createElement('div');
+                    appointmentDiv.className = 'appointment';
+                    appointmentDiv.textContent = `${a.title} @ ${a.time}`;
+                    appointmentContainer.appendChild(appointmentDiv);
+                });
+
+                dayCell.addEventListener('click', async () => {
+                    const title = prompt(`Add an appointment for ${day} ${monthNames[month]} ${year}`);
+                    const time = prompt('Enter the time (HH:MM):');
+                    if (title && time) {
+                        await fetch('/appointments/add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ year, month: month + 1, day, title, time })
+                        });
+                        renderCalendar(year, month);
+                    }
+                });
+
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        prevMonth.addEventListener('click', () => {
+            month--;
+            if (month < 0) {
+                month = 11;
+                year--;
+            }
+            renderCalendar(year, month);
+        });
+
+        nextMonth.addEventListener('click', () => {
+            month++;
+            if (month > 11) {
+                month = 0;
+                year++;
+            }
+            renderCalendar(year, month);
+        });
+
+        renderCalendar(year, month);
+    </script>
+</body>
+</html>

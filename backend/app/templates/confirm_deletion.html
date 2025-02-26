@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Deletion</title>
+</head>
+<body>
+    <h1>Confirm Deletion</h1>
+    <p>Are you sure you want to delete {{ patient.first_name }} {{ patient.last_name }}?</p>
+    <a href="/delete_patient/{{ patient.id }}">Yes, Delete</a>
+    <a href="/manage_patients">No, Go Back</a>
+</body>
+</html>
