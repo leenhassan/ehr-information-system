@@ -24,6 +24,16 @@ This project ensures secure patient data management, GDPR compliance, and improv
 ```bash
 git clone https://github.com/leenhassan/ehr-information-system.git
 cd ehr-information-system
+### ⚠️ Important Note  
+To avoid dependency issues, it's recommended to use a virtual environment before installing requirements.
+
+Run these commands:
+```bash
+python -m venv env
+source env/bin/activate  # For macOS/Linux
+env\Scripts\activate  # For Windows
+pip install -r backend/requirements.txt
+
 2️⃣ Install dependencies:
 pip install -r requirements.txt
 3️⃣ Run the application:
